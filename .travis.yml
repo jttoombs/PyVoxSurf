@@ -1,35 +1,47 @@
-language: python
-
-jobs:
+matrix:
   include:
-    # perform a linux build
-    - services: docker
-    # and a mac build
-    - os: osx
-      language: shell
-    # and a windows build
-    - os: windows
-      language: shell
-      before_install:
-        - choco install python --version 3.8.0
-        - export PATH="/c/Python38:/c/Python38/Scripts:$PATH"
+    - language: python
+      dist: xenial
+      sudo: required
+      python: "3.7"
+      services:
+      - docker
 
+    - os: osx
+    
 env:
   global:
     - TWINE_USERNAME=__token__
-    # Note: TWINE_PASSWORD is set to a PyPI API token in Travis settings
-
+    - secure: "oV+OPLa3tVGrQbls8nhhSPnVTwu/aFznriMUYrh4ZLXQSVlc4upQwCHEmssWlPxOtzdQc3KOilztWu2QrBfWXByEo61HZzujNryy2DIbdzSujYzkmRjXxZKjRqEa+w8j3GfbueWnc9HG8LYjB2CIb4xtrWQMCN6UY0n8FKWaBcze2edUtmxMTFd1WiMd5ly0/Uz1N6ny74MW3PR82nk/ySiF03kauYGS/UBpfRZ5Gj8ImlO7kDUncbgvcxOob6bSH/5cJd3KQTbeKDVJsequdEJRDJeHSLwJVOGeBeOL/jOqsIAf3BJnMFtGU+kl9KayyUpiTQScP9jABCyuP8c1hLW+IjBsK0UBhckcQTWQYhTRSuWZ8cnhOcckd46waomkFj9WsxQxiHA3Yxw3p1kV09RGKg/9gNtktmjLX5apGk33HuFE1lupS04mqrVHgkm/gLhDP2KwHstYSTwsJDO5kcrMpTgHlWH7mVZUjX6VUmOVcgVy51kHc/+F0k9o4IPrBG/092Aqn6s0Gh+4vglb4GAukmTaf6ZEKQJzMsHOrMv4QxmuMR47WqGg6AXkCUXJg/EDSjOoFoPQi4wZn5l3HZNHuKtkY5uCVhyjQKvbZwMiIC70YUonx2M9xzSELJrOjkrWvRCi7fyXKfdhmQSEml8kQKXpzVv/152NFQfx42I="
+    - CIBW_SKIP="cp27-*"
+    - CIBW_TEST_COMMAND="python -m unittest discover -f -s {project}/tests"
+    - CC="gcc"
+    - PYTHON=python3
+    - PIP=pip3
+    
 install:
-  - python3 -m pip install cibuildwheel==1.4.2
-
-script:
-  # build the wheels, put them into './wheelhouse'
-  - python3 -m cibuildwheel --output-dir wheelhouse
-
-after_success:
-  # if the release was tagged, upload them to PyPI
-  - |
-    if [[ $TRAVIS_TAG ]]; then
-      python3 -m pip install twine
-      python3 -m twine upload wheelhouse/*.whl
+  - if [ "${TRAVIS_OS_NAME:-}" == "osx" ]; then
+      brew update;
+      brew upgrade python;
     fi
+  - $PIP install -e .[tests]
+  - $PYTHON -m unittest discover -v -f -s ./tests
+  - find . -type f -iname '*.so' -print -delete    
+    
+    
+script:
+  - $PIP install cibuildwheel==0.12.0
+  - cibuildwheel --output-dir wheelhouse
+  - ls wheelhouse
+  
+  
+deploy:
+  skip_cleanup: true
+  provider: script
+  script: $PIP install twine && $PYTHON -m twine upload --verbose --skip-existing wheelhouse/*
+  on:
+    branch: master
+    tag: true
+    
+    
+    
