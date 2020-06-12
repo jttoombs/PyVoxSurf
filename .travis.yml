@@ -24,7 +24,7 @@ install:
       brew update;
       brew upgrade python;
     fi
-  - $PIP install -e .[tests]
+  - $PIP install -e
   - $PYTHON -m unittest discover -v -f -s ./tests
   - find . -type f -iname '*.so' -print -delete    
     
