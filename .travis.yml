@@ -24,7 +24,7 @@ install:
       brew update;
       brew upgrade python;
     fi
-  - $PIP install
+  - $PIP install -e .
   - find . -type f -iname '*.so' -print -delete    
     
     
