@@ -24,13 +24,12 @@ install:
       brew update;
       brew upgrade python;
     fi
-  - $PIP install -e
-  - $PYTHON -m unittest discover -v -f -s ./tests
+  - $PIP install
   - find . -type f -iname '*.so' -print -delete    
     
     
 script:
-  - $PIP install cibuildwheel==0.12.0
+  - $PIP install cibuildwheel==1.4.2
   - cibuildwheel --output-dir wheelhouse
   - ls wheelhouse
   
