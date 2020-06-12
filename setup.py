@@ -76,13 +76,14 @@ with open(path.join(this_directory, 'README.md'), encoding='utf-8') as f:
 
 setup(
     name='pyvoxsurf',
-    version='1.0.6',
+    version='1.0.7',
     author='Joseph Toombs',
     author_email='jtoombs719@gmail.com',
     url='https://github.com/jttoombs/PyVoxSurf',
     description='A Python C++ extension based on VoxSurf for voxelization of 3D meshes.',
     long_description=long_description,
     long_description_content_type='text/markdown',
+    extra_requires={'tests': []},
     ext_modules=[CMakeExtension('pyvoxsurf')],
     cmdclass=dict(build_ext=CMakeBuild),
     zip_safe=False,
